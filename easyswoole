@@ -1,0 +1,10 @@
+<?php
+
+defined('PROJECT_ROOT') or define('PROJECT_ROOT', realpath(getcwd()));
+
+foreach (["./vendor/bin/easyswoole", "./bin/easyswoole" ] as $file) {
+    if (file_exists($file)) {
+        require $file;
+        break;
+    }
+}
