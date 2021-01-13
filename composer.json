@@ -21,7 +21,7 @@
 		"easyswoole/ddl": "1.0.9",
 		"easyswoole/mysqli": "2.x-dev",
 		"easyswoole/pool": "1.0.11",
-		"easyswoole/redis-pool": "2.x-dev",
+		"easyswoole/redis-pool": "2.1.0",
 		"easyswoole/template": "1.0.8",
 		"evenement/evenement": "v3.0.1",
 		"myclabs/deep-copy": "1.x-dev",
