@@ -1,6 +1,7 @@
 {
 	"name" : "wangrunxinyes/wrxswoole",
 	"description" : "a swoole framework based on easyswoole",
+	"license": "MIT",
 	"require" : {
 		"easyswoole/orm" : "1.4.30",
 		"easyswoole/easy-whoops" : "3.x-dev",
