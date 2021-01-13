@@ -187,13 +187,13 @@ abstract class CoreHttpController extends Controller
         foreach ($this->getAllowMethodReflections() as $name => $reflection) {
             $ret = $this->annotation->getAnnotation($reflection);
             if (! empty($ret)) {
-                $this->methodAnnotations[$name] = $ret;
+                $this->methodAnnotations[strtolower($name)] = $ret;
             }
         }
         foreach ($this->getPropertyReflections() as $name => $reflection) {
             $ret = $this->annotation->getAnnotation($reflection);
             if (! empty($ret)) {
-                $this->propertyAnnotations[$name] = $ret;
+                $this->propertyAnnotations[strtolower($name)] = $ret;
             }
         }
     }
