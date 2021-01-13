@@ -73,11 +73,6 @@
 		"wangrunxinyes/easyswoole": "dev-wswoole"
 	},
 	"minimum-stability" : "dev",
-	"repositories" : [{
-			"type" : "git",
-			"url" : "https://github.com/wangrunxinyes/easyswoole"
-		}
-	],
 	"autoload" : {
 		"psr-4" : {
 			"wrxswoole\\" : "wrxswoole/",
