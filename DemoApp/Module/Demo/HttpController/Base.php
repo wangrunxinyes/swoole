@@ -29,6 +29,7 @@ class Base extends CoreHttpController
      */
     public function index()
     {
+        $this->getComponent("test")->log();
         $this->writeSuccessJson([
             "message" => "welcome to api.wangrunxin.com",
             "traceid" => CoreCoroutineThread::getInstance()->getCoreController()

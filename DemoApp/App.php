@@ -1,6 +1,7 @@
 <?php
 namespace App;
 
+use App\Component\IdentityTest;
 use wrxswoole\Core\BaseApp;
 use App\Module\Demo\Demo;
 
@@ -19,6 +20,18 @@ class App extends BaseApp
     {
         $this->modules = [
             Demo::getInstance()
+        ];
+    }
+
+    /**
+     * getComponents
+     *
+     * @return array
+     */
+    function getComponents(): array
+    {
+        return [
+            "test" => IdentityTest::class
         ];
     }
 }

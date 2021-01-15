@@ -1,4 +1,5 @@
 <?php
+
 namespace wrxswoole\Core;
 
 use App\App;
@@ -13,9 +14,19 @@ use EasySwoole\EasySwoole\Swoole\EventRegister;
 use EasySwoole\Http\GlobalParamHook;
 use EasySwoole\Http\Request;
 use EasySwoole\Http\Response;
+use EasySwoole\HttpAnnotation\AnnotationTag\CircuitBreaker;
+use EasySwoole\HttpAnnotation\AnnotationTag\Context;
+use EasySwoole\HttpAnnotation\AnnotationTag\Di as AnnotationTagDi;
+use EasySwoole\HttpAnnotation\AnnotationTag\DocTag\Api;
+use EasySwoole\HttpAnnotation\AnnotationTag\DocTag\ApiFail;
+use EasySwoole\HttpAnnotation\AnnotationTag\DocTag\ApiRequestExample;
+use EasySwoole\HttpAnnotation\AnnotationTag\DocTag\ApiSuccess;
 use EasySwoole\Session\Session;
 use EasySwoole\Session\SessionFileHandler;
 use Swoole\Coroutine\Scheduler;
+use wrxswoole\Core\Annotation\Tag\Authenticate;
+use wrxswoole\Core\Annotation\Tag\Method;
+use wrxswoole\Core\Annotation\Tag\Param;
 use wrxswoole\Core\Audit\Panel\DbPanel;
 use wrxswoole\Core\Audit\Panel\LogPanel;
 use wrxswoole\Core\Audit\Panel\RequestPanel;
@@ -40,6 +51,10 @@ abstract class BaseApp extends AbstractConfig
     const DEFAULT_BREAK_MSG = "an internal failure has occurred";
 
     const ENABLE_AUDIT = "ENABLE_AUDIT";
+
+    const EXT_ANNOTATION_TAGS = "ExtAnnotationTags";
+
+    const APP_COMPONENTS = "AppComponents";
 
     public $compressData = true;
 
@@ -74,6 +89,8 @@ abstract class BaseApp extends AbstractConfig
          */
         $app->createAudit();
         $app->setModules();
+        $app->setBaseAnnotationTags();
+        $app->initComponents();
 
         Di::getInstance()->set(SysConst::HTTP_CONTROLLER_MAX_DEPTH, 10);
         Di::getInstance()->set(SysConst::HTTP_DISPATCHER_NAMESPACE, 'wrxswoole\\Core\\Http\\');
@@ -91,12 +108,48 @@ abstract class BaseApp extends AbstractConfig
         GlobalParamHook::getInstance()->onRequest($request, $response);
     }
 
+    /**
+     * getComponents
+     *
+     * @return array
+     */
+    function getComponents(): array
+    {
+        return [];
+    }
+
+    private function initComponents()
+    {
+        Di::getInstance()->set(BaseApp::APP_COMPONENTS, $this->getComponents());
+    }
+
+    function setBaseAnnotationTags()
+    {
+        Di::getInstance()->set(BaseApp::EXT_ANNOTATION_TAGS, array_merge([
+            "Method" => Method::class,
+            "Param" => Param::class,
+            "Context" => Context::class,
+            "Di" => AnnotationTagDi::class,
+            "CircuitBreaker" => CircuitBreaker::class,
+            "Api" => Api::class,
+            "ApiFail" => ApiFail::class,
+            "ApiSuccess" => ApiSuccess::class,
+            "ApiRequestExample" => ApiRequestExample::class,
+            "Authenticate" => Authenticate::class
+        ], $this->getExtAnnotationTags()));
+    }
+
+    function getExtAnnotationTags()
+    {
+        return [];
+    }
+
     function createAudit()
     {
         /**
          * skip audit connection;
          */
-        if (! $this->enableAudit()) {
+        if (!$this->enableAudit()) {
             ConsoleLogger::getInstance()->debug("audit system", [
                 "skip"
             ]);
@@ -131,15 +184,17 @@ abstract class BaseApp extends AbstractConfig
     }
 
     function getModules()
-    {}
+    {
+    }
 
     function initModules()
-    {}
+    {
+    }
 
     function getModule($id)
     {
         $id = strtolower($id);
-        if (! isset($this->modules[$id])) {
+        if (!isset($this->modules[$id])) {
             return null;
         }
 
@@ -205,5 +260,3 @@ abstract class BaseApp extends AbstractConfig
         ];
     }
 }
-
-?>

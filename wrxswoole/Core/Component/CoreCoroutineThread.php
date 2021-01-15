@@ -35,6 +35,8 @@ class CoreCoroutineThread
 
     private $main = false;
 
+    private $components = [];
+
     /**
      *
      * @var array

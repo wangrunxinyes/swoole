@@ -22,6 +22,7 @@ use wrxswoole\Core\Annotation\Tag\DI;
 use wrxswoole\Core\Annotation\Tag\Method;
 use wrxswoole\Core\Annotation\Tag\Param;
 use wrxswoole\Core\Annotation\Tag\Route;
+use wrxswoole\Core\BaseApp;
 use wrxswoole\Core\Component\CoreCoroutineThread;
 use wrxswoole\Core\Credential\Token;
 use wrxswoole\Core\Exception\ExceptionHandler;
@@ -72,6 +73,8 @@ abstract class CoreHttpController extends Controller
 
     private $responseCode = HttpResponseResult::CODE_OK;
 
+    private $components = [];
+
     public $request;
 
     public $response;
@@ -99,6 +102,22 @@ abstract class CoreHttpController extends Controller
         }
 
         return $result;
+    }
+
+    private function addComponents(){
+        $components = IOC::getInstance()->get(BaseApp::APP_COMPONENTS);
+        
+        foreach($components as $key => $class){
+            $this->components[$key] = $class::init();
+        }
+    }
+
+    function setComponent($key, $data){
+        $this->components[$key] = $data;
+    }
+
+    function getComponent($key){
+        return $this->components[$key];
     }
 
     static function getInstance(): CoreHttpController
@@ -168,16 +187,11 @@ abstract class CoreHttpController extends Controller
 
     public function addAnnotationTags()
     {
-        $this->annotation->addParserTag(new Method());
-        $this->annotation->addParserTag(new Param());
-        $this->annotation->addParserTag(new Context());
-        $this->annotation->addParserTag(new Di());
-        $this->annotation->addParserTag(new CircuitBreaker());
-        $this->annotation->addParserTag(new Api());
-        $this->annotation->addParserTag(new ApiFail());
-        $this->annotation->addParserTag(new ApiSuccess());
-        $this->annotation->addParserTag(new ApiRequestExample());
-        $this->annotation->addParserTag(new Authenticate());
+        $annotations = IOC::getInstance()->get(BaseApp::EXT_ANNOTATION_TAGS);
+        
+        foreach($annotations as $key => $class){
+            $this->annotation->addParserTag(new $class());
+        }
     }
 
     public function beforeRunAction()
@@ -241,16 +255,16 @@ abstract class CoreHttpController extends Controller
             }
         }
 
-        if (App::getInstance()->isDev()) {
-            $this->log([
-                "Debug" => [
-                    "ClassName" => get_class($this),
-                    "Function" => $actionName,
-                    "swoole_received_cookies" => $request->getCookieParams(),
-                    "swoole_received_headers" => $request->getHeaders()
-                ]
-            ], "Meta");
-        }
+        // if (App::getInstance()->isDev()) {
+        //     $this->log([
+        //         "Debug" => [
+        //             "ClassName" => get_class($this),
+        //             "Function" => $actionName,
+        //             "swoole_received_cookies" => $request->getCookieParams(),
+        //             "swoole_received_headers" => $request->getHeaders()
+        //         ]
+        //     ], "Meta");
+        // }
 
         return parent::__hook($actionName, $request, $response);
     }
@@ -302,6 +316,7 @@ abstract class CoreHttpController extends Controller
             if ($this->onRequest($actionName) !== false) {
                 if (isset($this->getLowerCaseMethodReflections()[$actionName])) {
                     $this->reflection();
+                    $this->addComponents();
                     $forwardPath = $this->$actionName();
                 } else {
                     $forwardPath = $this->actionNotFound($actionName);
