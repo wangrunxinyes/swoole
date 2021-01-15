@@ -4,7 +4,7 @@
 	"license": "MIT",
 	"require" : {
 		"easyswoole/orm" : "1.4.30",
-		"easyswoole/easy-whoops" : "3.x-dev",
+		"easyswoole/easy-whoops" : "3.0.3",
 		"easyswoole/log" : "1.0.6",
 		"easyswoole/http" : "1.7.15",
 		"easyswoole/trace" : "1.1.17",
