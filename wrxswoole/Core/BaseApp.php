@@ -56,6 +56,8 @@ abstract class BaseApp extends AbstractConfig
 
     const APP_COMPONENTS = "AppComponents";
 
+    const FORCE_AUTHENTICATE = "ForceAuthenticate";
+
     public $compressData = true;
 
     protected $modules = [];
@@ -89,7 +91,7 @@ abstract class BaseApp extends AbstractConfig
          */
         $app->createAudit();
         $app->setModules();
-        $app->setBaseAnnotationTags();
+        $app->setAnnotationTags();
         $app->initComponents();
 
         Di::getInstance()->set(SysConst::HTTP_CONTROLLER_MAX_DEPTH, 10);
@@ -123,9 +125,19 @@ abstract class BaseApp extends AbstractConfig
         Di::getInstance()->set(BaseApp::APP_COMPONENTS, $this->getComponents());
     }
 
-    function setBaseAnnotationTags()
+    function isForceAuthenticate(): bool
     {
-        Di::getInstance()->set(BaseApp::EXT_ANNOTATION_TAGS, array_merge([
+        return Config::getInstance()->getConf(BaseApp::FORCE_AUTHENTICATE);
+    }
+
+    private function setAnnotationTags()
+    {
+        Di::getInstance()->set(BaseApp::EXT_ANNOTATION_TAGS, $this->getAnnotationTags());
+    }
+
+    function getAnnotationTags()
+    {
+        return array_merge([
             "Method" => Method::class,
             "Param" => Param::class,
             "Context" => Context::class,
@@ -136,12 +148,29 @@ abstract class BaseApp extends AbstractConfig
             "ApiSuccess" => ApiSuccess::class,
             "ApiRequestExample" => ApiRequestExample::class,
             "Authenticate" => Authenticate::class
-        ], $this->getExtAnnotationTags()));
+        ], $this->getExtAnnotationTags());
     }
 
     function getExtAnnotationTags()
     {
         return [];
+    }
+
+    /**
+     * getAuthenticator
+     *
+     * @return Authenticate
+     */
+    function getAuthenticator(): Authenticate
+    {
+        $tags = $this->getAnnotationTags();
+        if (isset($tags["Authenticate"])) {
+            $className = $tags["Authenticate"];
+        } else {
+            $className = Authenticate::class;
+        }
+
+        return new $className();
     }
 
     function createAudit()

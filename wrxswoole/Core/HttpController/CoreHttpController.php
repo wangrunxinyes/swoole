@@ -276,10 +276,12 @@ abstract class CoreHttpController extends Controller
             $annotations = $this->methodAnnotations[$actionName];
             $wait = new \EasySwoole\Component\WaitGroup();
             $errors = [];
+            $authenticate = false;
             foreach ($annotations as $list) {
                 foreach ($list as $annotation) {
                     if ($annotation instanceof ValidateInterface)
                         if ($annotation instanceof Authenticate) {
+                            $authenticate = true;
                             try {
                                 $annotation->validate();
                             } catch (\Exception $e) {
@@ -294,6 +296,14 @@ abstract class CoreHttpController extends Controller
                                 }
                             }, $this, $wait);
                         }
+                }
+            }
+
+            if(!$authenticate && App::getInstance()->isForceAuthenticate()){
+                try {
+                    App::getInstance()->getAuthenticator()->validate();
+                } catch (\Exception $e) {
+                    $errors[] = $e;
                 }
             }
 

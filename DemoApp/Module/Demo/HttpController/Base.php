@@ -25,7 +25,6 @@ class Base extends CoreHttpController
     /**
      *
      * @Method(allow={GET})
-     * @Authenticate(false)
      */
     public function index()
     {

@@ -23,5 +23,6 @@ return [
     'TEMP_DIR' => '/tmp/',
     'LOG_DIR' => null,
     'DEV' => true,
-    BaseApp::ENABLE_AUDIT => false
+    BaseApp::ENABLE_AUDIT => false,
+    BaseApp::FORCE_AUTHENTICATE => true
 ];
