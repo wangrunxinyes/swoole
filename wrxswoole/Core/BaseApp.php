@@ -35,6 +35,7 @@ use wrxswoole\Core\Http\Module;
 use wrxswoole\Core\Log\ConsoleLogger;
 use wrxswoole\Core\Task\TaskManager;
 use wrxswoole\Core\Trace\Point\DbQueryTrackerPoint;
+use wrxswoole\Core\Trace\Traits\TraceTrait;
 
 /**
  *
@@ -45,6 +46,8 @@ abstract class BaseApp extends AbstractConfig
 {
 
     use Singleton;
+
+    use TraceTrait;
 
     const DEFAULT_ERROR_MSG = "an internal error has occurred";
 
@@ -151,10 +154,7 @@ abstract class BaseApp extends AbstractConfig
         ], $this->getExtAnnotationTags());
     }
 
-    function getExtAnnotationTags()
-    {
-        return [];
-    }
+    abstract function getExtAnnotationTags();
 
     /**
      * getAuthenticator

@@ -18,6 +18,6 @@ class IdentityTest extends BaseComponent
     }
 
     function log(){
-        print_r($this->_id);
+        // print_r($this->_id);
     }
 }

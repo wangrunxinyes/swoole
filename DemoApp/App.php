@@ -1,6 +1,7 @@
 <?php
 namespace App;
 
+use App\Annotation\Tag\DemoAuthenticator;
 use App\Component\IdentityTest;
 use wrxswoole\Core\BaseApp;
 use App\Module\Demo\Demo;
@@ -32,6 +33,13 @@ class App extends BaseApp
     {
         return [
             "test" => IdentityTest::class
+        ];
+    }
+
+    function getExtAnnotationTags()
+    {
+        return [
+            "Authenticate" => DemoAuthenticator::class
         ];
     }
 }

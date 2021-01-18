@@ -15,6 +15,7 @@ use wrxswoole\Core\Validator\ValidatorTrait;
 use wrxswoole\Core\Validator\Interfaces\ValidateInterface;
 use wrxswoole\Core\Credential\Component\CredentialHelper;
 use wrxswoole\Core\Security\SecurityApi;
+use wrxswoole\Core\Trace\Traits\TraceTrait;
 
 /**
  * Route
@@ -22,9 +23,11 @@ use wrxswoole\Core\Security\SecurityApi;
  * @author WANG RUNXIN
  *        
  */
-final class Authenticate extends AbstractAnnotationTag implements ValidateInterface
+class Authenticate extends AbstractAnnotationTag implements ValidateInterface
 {
     use ValidatorTrait;
+
+    use TraceTrait;
 
     const ANONYMOUS = 'anonymous';
 
@@ -47,26 +50,24 @@ final class Authenticate extends AbstractAnnotationTag implements ValidateInterf
         }
     }
 
-    public function tagName(): string
+    function tagName(): string
     {
         return self::TAG;
     }
 
-    public function assetValue(?string $raw)
+    function assetValue(?string $raw)
     {
         if (strtolower($raw) === "false") {
             return $this->allow = false;
         }
     }
 
-    public function validate()
+    function validate()
     {
         if (! $this->allow) {
             return true;
         }
 
-        SecurityApi::getInstance()->auth();
-
-        return true;
+        $this->error("pls implement your authenticate method.");
     }
 }

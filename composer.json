@@ -67,8 +67,8 @@
 		"philipbrown/signature-php": "v5.1.2",
 		"lcobucci/jwt": "4.0.0-alpha3",
 		"easyswoole/spl": "1.3.7",
-		"easyswoole/component": "2.2.3",
-		"wangrunxinyes/easyswoole": "1.0.1"
+		"wangrunxinyes/easyswoole": "1.0.1",
+		"wangrunxinyes/easyswoole-component": "1.0.0"
 	},
 	"minimum-stability" : "dev",
 	"autoload" : {
