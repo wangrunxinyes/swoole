@@ -7,6 +7,7 @@ use wrxswoole\Core\Exception\Error\BaseException;
 use wrxswoole\Core\Trace\Tracker;
 use wrxswoole\Core\Log\Logger;
 use wrxswoole\Core\Exception\Error\BreakPoint;
+use wrxswoole\Core\Exception\Traits\ExceptionFommatorTrait;
 
 /**
  *
@@ -15,6 +16,8 @@ use wrxswoole\Core\Exception\Error\BreakPoint;
  */
 trait TraceTrait
 {
+
+    use ExceptionFommatorTrait;
 
     /**
      *
@@ -143,5 +146,3 @@ trait TraceTrait
         throw new BreakPoint($data, is_null($message) ? App::DEFAULT_BREAK_MSG : $message);
     }
 }
-
-?>

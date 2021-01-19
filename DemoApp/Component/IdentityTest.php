@@ -12,6 +12,11 @@ class IdentityTest extends BaseComponent
         return new IdentityTest();
     }
 
+    static function getTag(): string
+    {
+        return "test";
+    }
+
     function __construct()
     {
         $this->_id = uniqid();

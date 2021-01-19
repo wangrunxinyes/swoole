@@ -1,7 +1,9 @@
 <?php
-namespace wrxswoole\Core\Exception;
+
+namespace wrxswoole\Core\Exception\Component;
 
 use App\App;
+use EasySwoole\EasySwoole\SysConst;
 use wrxswoole\Core\Component\CoreCoroutineThread;
 use wrxswoole\Core\Exception\Error\BaseException;
 use wrxswoole\Core\Exception\Error\MutipleException;
@@ -12,6 +14,9 @@ use wrxswoole\Core\Trace\Tracker;
 use wrxswoole\Core\Trace\Traits\TraceTrait;
 use wrxswoole\Core\Exception\Error\BreakPoint;
 use EasySwoole\Http\Response;
+use wrxswoole\Core\Component\CoreDi;
+use wrxswoole\Core\Exception\BaseExceptionHandler;
+use wrxswoole\Core\Exception\BaseExceptionHanlder;
 use wrxswoole\Core\Exception\Error\PageNotFoundException;
 
 /**
@@ -19,7 +24,7 @@ use wrxswoole\Core\Exception\Error\PageNotFoundException;
  * @author WANG RUNXIN
  *        
  */
-class ExceptionHandler
+abstract class ExceptionHandler
 {
     use TraceTrait;
 
@@ -33,16 +38,33 @@ class ExceptionHandler
      *
      * @var Response|NULL
      */
-    private $response = null;
+    protected $response = null;
 
-    private $responseCode = null;
+    protected $responseCode = null;
 
-    private $responseStatus = null;
+    protected $responseStatus = null;
 
     function __construct(\Throwable $throwable, Response $response = null)
     {
         $this->throwable = $throwable;
         $this->response = $response;
+    }
+
+    /**
+     * getInstance
+     *
+     * @param  mixed $throwable
+     * @param  mixed $response
+     * @return self
+     */
+    static function getInstance(\Throwable $throwable, Response $response = null): self
+    {
+        $className = CoreDi::getInstance()->get(SysConst::ERROR_HANDLER);
+        if(is_null($className)){
+            $className = BaseExceptionHandler::class;
+        }
+
+        return new $className($throwable, $response);
     }
 
     public function end()
@@ -55,7 +77,11 @@ class ExceptionHandler
                 ->response()
                 ->end();
         } else {
-            $this->response->write(json_encode($response, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
+            $this->response->write(json_encode([
+                "code" => $this->getResponseCode(),
+                "status" => $this->getResponseStatus(),
+                "result" => $response
+            ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
             $this->response->withHeader('Content-type', 'application/json;charset=utf-8');
             $this->response->withStatus($this->getResponseCode());
             $this->response->end();
@@ -86,7 +112,7 @@ class ExceptionHandler
 
     public function getResponseStatus()
     {
-        if (! is_null($this->responseStatus)) {
+        if (!is_null($this->responseStatus)) {
             return $this->responseStatus;
         }
 
@@ -99,7 +125,7 @@ class ExceptionHandler
 
     public function getResponseCode()
     {
-        if (! is_null($this->responseCode)) {
+        if (!is_null($this->responseCode)) {
             return $this->responseCode;
         }
 
@@ -117,7 +143,6 @@ class ExceptionHandler
     public function getResponse(): array
     {
         try {
-
             if ($this->isNotice()) {
                 // skip error panel log on notice type exception;
                 return $this->makeNoticeResponse();
@@ -136,15 +161,11 @@ class ExceptionHandler
                 return $debug;
             }
 
-            return [
-                "msg" => "an internal error has occurred.",
-                "visitor" => Tracker::getInstance()->getTraceId()
-            ];
+            return $this->makeProduceResponse();
         } catch (\Throwable $e) {
 
-            $traceId = uniqid("trace.id.");
             $debug = [
-                "trace_id" => $traceId,
+                "trace_id" => Tracker::getInstance()->getTraceId(),
                 "runtime exception" => self::formatExceptionTrace($this->throwable),
                 "recored_exception" => [
                     "message" => "failed to recored error data",
@@ -157,12 +178,11 @@ class ExceptionHandler
             $this->responseCode = HttpResponseResult::CODE_ERROR;
             $this->responseStatus = HttpResponseResult::STATUS_ERROR;
 
-            return [
-                "msg" => "an internal error has occurred.",
-                "visitor" => $traceId
-            ];
+            return $this->makeProduceResponse();
         }
     }
+
+    abstract function makeProduceResponse(): array;
 
     public function makeNoticeResponse(): array
     {
@@ -186,7 +206,7 @@ class ExceptionHandler
 
     private function makeCoreTrace()
     {
-        if (! is_null($this->response)) {
+        if (!is_null($this->response)) {
             return [];
         }
 
@@ -197,49 +217,4 @@ class ExceptionHandler
     {
         return ExceptionHandler::makeSimpleTrace($this->throwable);
     }
-
-    static function makeSimpleTrace(\Throwable $throwable): array
-    {
-        return ExceptionHandler::makeSimpleTraceByArray($throwable->getTrace());
-    }
-
-    static function makeSimpleTraceByArray($origin)
-    {
-        $trace = [];
-
-        if (! is_array($origin)) {
-            return [
-                "noTrace" => [
-                    'file' => $origin,
-                    'line' => null,
-                    'function' => null
-                ]
-            ];
-        }
-
-        foreach ($origin as $line) {
-            if (isset($line['file'])) {
-                $trace[] = [
-                    'file' => $line['file'],
-                    'line' => $line['line'],
-                    'function' => $line['function']
-                ];
-            }
-        }
-
-        return $trace;
-    }
-
-    public static function formatExceptionTrace(\Throwable $throwable)
-    {
-        return [
-            'exception' => get_class($throwable),
-            'message' => $throwable->getMessage(),
-            'file' => $throwable->getFile(),
-            'line' => $throwable->getLine(),
-            'hint' => $throwable instanceof BaseException ? $throwable->hint : ExceptionHandler::makeSimpleTrace($throwable)
-        ];
-    }
 }
-
-?>

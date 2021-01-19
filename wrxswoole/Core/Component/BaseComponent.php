@@ -11,4 +11,5 @@ abstract class BaseComponent
      * @return static
      */
     abstract static function init();
+    abstract static function getTag(): string;
 }

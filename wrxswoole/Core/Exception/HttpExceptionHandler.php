@@ -3,6 +3,7 @@ namespace wrxswoole\Core\Exception;
 
 use wrxswoole\Core\Exception\Error\MutipleException;
 use EasySwoole\Http\Request;
+use wrxswoole\Core\Component\CoreDi;
 
 /**
  *
@@ -14,7 +15,6 @@ class HttpExceptionHandler
 
     static function Handle($throwable, $request, $response)
     {
-        $handler = new ExceptionHandler($throwable, $response);
-        $handler->end();
+        BaseExceptionHandler::getInstance($throwable, $response)->end();
     }
 }

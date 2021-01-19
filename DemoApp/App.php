@@ -2,9 +2,12 @@
 namespace App;
 
 use App\Annotation\Tag\DemoAuthenticator;
+use App\Component\Exception\CustomizeExceptionHandler;
 use App\Component\IdentityTest;
 use wrxswoole\Core\BaseApp;
 use App\Module\Demo\Demo;
+use EasySwoole\EasySwoole\SysConst;
+use wrxswoole\Core\Component\CoreDi;
 
 /**
  *
@@ -32,15 +35,21 @@ class App extends BaseApp
     function getComponents(): array
     {
         return [
-            "test" => IdentityTest::class
+            IdentityTest::getTag() => IdentityTest::class
         ];
     }
 
     function getExtAnnotationTags()
     {
         return [
-            "Authenticate" => DemoAuthenticator::class
+            DemoAuthenticator::TAG => DemoAuthenticator::class
         ];
+    }
+
+    function dependencyInjection()
+    {
+        parent::dependencyInjection();
+        CoreDi::getInstance()->set(SysConst::ERROR_HANDLER, CustomizeExceptionHandler::class);
     }
 }
 

@@ -30,7 +30,9 @@ use wrxswoole\Core\Annotation\Tag\Param;
 use wrxswoole\Core\Audit\Panel\DbPanel;
 use wrxswoole\Core\Audit\Panel\LogPanel;
 use wrxswoole\Core\Audit\Panel\RequestPanel;
+use wrxswoole\Core\Component\CoreDi;
 use wrxswoole\Core\Database\DbManager;
+use wrxswoole\Core\Exception\BaseExceptionHandler;
 use wrxswoole\Core\Http\Module;
 use wrxswoole\Core\Log\ConsoleLogger;
 use wrxswoole\Core\Task\TaskManager;
@@ -65,6 +67,11 @@ abstract class BaseApp extends AbstractConfig
 
     protected $modules = [];
 
+    function __construct()
+    {
+        $this->dependencyInjection();
+    }
+
     static function mainServerCreate(EventRegister $register)
     {
         // QueueService::register();
@@ -88,6 +95,7 @@ abstract class BaseApp extends AbstractConfig
          * init db connection;
          */
         DBConfig::initialize();
+        
 
         /**
          * create audit if need;
@@ -97,15 +105,18 @@ abstract class BaseApp extends AbstractConfig
         $app->setAnnotationTags();
         $app->initComponents();
 
-        Di::getInstance()->set(SysConst::HTTP_CONTROLLER_MAX_DEPTH, 10);
-        Di::getInstance()->set(SysConst::HTTP_DISPATCHER_NAMESPACE, 'wrxswoole\\Core\\Http\\');
-        Di::getInstance()->set(SysConst::HTTP_EXCEPTION_HANDLER, "wrxswoole\Core\Exception\HttpExceptionHandler::Handle");
-
         /**
          * 清理调度器内可能注册的定时器
          * 不要影响到swoole server 的event loop
          */
         \Swoole\Timer::clearAll();
+    }
+
+    protected function dependencyInjection(){
+        Di::getInstance()->set(SysConst::HTTP_CONTROLLER_MAX_DEPTH, 10);
+        Di::getInstance()->set(SysConst::HTTP_DISPATCHER_NAMESPACE, 'wrxswoole\\Core\\Http\\');
+        Di::getInstance()->set(SysConst::HTTP_EXCEPTION_HANDLER, "wrxswoole\Core\Exception\HttpExceptionHandler::Handle");
+        CoreDi::getInstance()->set(SysConst::ERROR_HANDLER, BaseExceptionHandler::class);
     }
 
     static function onRequest(Request $request, Response $response)
