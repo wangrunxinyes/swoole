@@ -6,6 +6,7 @@ use EasySwoole\Annotation\Annotation;
 use EasySwoole\Component\Di as IOC;
 use EasySwoole\Component\Context\ContextManager;
 use EasySwoole\EasySwoole\Logger;
+use EasySwoole\EasySwoole\SysConst;
 use EasySwoole\Http\Request;
 use EasySwoole\Http\Response;
 use EasySwoole\HttpAnnotation\AnnotationTag\CircuitBreaker;
@@ -24,8 +25,8 @@ use wrxswoole\Core\Annotation\Tag\Param;
 use wrxswoole\Core\Annotation\Tag\Route;
 use wrxswoole\Core\BaseApp;
 use wrxswoole\Core\Component\CoreCoroutineThread;
+use wrxswoole\Core\Component\CoreDi;
 use wrxswoole\Core\Credential\Token;
-use wrxswoole\Core\Exception\ExceptionHandler;
 use wrxswoole\Core\Exception\Error\MutipleException;
 use wrxswoole\Core\HttpResponse\HttpResponseResult;
 use wrxswoole\Core\Trace\Tracker;
@@ -438,7 +439,8 @@ abstract class CoreHttpController extends Controller
     public function onException(\Throwable $throwable): void
     {
         $this->success = false;
-        (new ExceptionHandler($throwable))->end();
+        $handlerClassName = CoreDi::getInstance()->get(SysConst::ERROR_HANDLER);
+        (new $handlerClassName($throwable))->end();
     }
 
     public function isSuccess(): bool
