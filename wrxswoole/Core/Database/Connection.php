@@ -46,6 +46,7 @@ class Connection
                 return $ret;
             } catch (\Exception $e) {
                 $result = new Result();
+                $result->setResult(false);
                 $result->setLastError($e);
                 return $result;
             }

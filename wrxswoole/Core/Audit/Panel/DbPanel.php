@@ -4,7 +4,7 @@ namespace wrxswoole\Core\Audit\Panel;
 use wrxswoole\Core\Trace\Tracker;
 use wrxswoole\Core\Trace\Point\DbQueryTrackerPoint;
 use EasySwoole\Trace\Bean\TrackerPoint;
-use wrxswoole\Core\Exception\ExceptionHandler;
+use wrxswoole\Core\Exception\Component\ExceptionHandler;
 
 class DbPanel extends Panel
 {

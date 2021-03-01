@@ -4,7 +4,7 @@ namespace wrxswoole\Core\HttpController;
 use EasySwoole\Annotation\Annotation;
 use EasySwoole\Http\Request;
 use wrxswoole\Core\Component\NonHttpRequest;
-use wrxswoole\Core\Exception\ExceptionHandler;
+use wrxswoole\Core\Exception\BaseExceptionHandler;
 
 class NonHttpEnvController extends CoreHttpController
 {
@@ -31,7 +31,7 @@ class NonHttpEnvController extends CoreHttpController
     function onException(\Throwable $throwable): void
     {
         $this->success = false;
-        $handler = new ExceptionHandler($throwable);
+        $handler = new BaseExceptionHandler($throwable);
         $response = $handler->getResponse();
         if ($handler->isNotice()) {
             $this->log($response, $throwable->getMessage());

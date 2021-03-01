@@ -2,7 +2,7 @@
 namespace wrxswoole\Core\Exception\Error;
 
 use App\App;
-use wrxswoole\Core\Exception\ExceptionHandler;
+use wrxswoole\Core\Exception\Component\ExceptionHandler;
 
 /**
  *

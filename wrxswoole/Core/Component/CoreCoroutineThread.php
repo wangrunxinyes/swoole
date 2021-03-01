@@ -5,7 +5,6 @@ use App\App;
 use EasySwoole\Component\Timer;
 use EasySwoole\Component\WaitGroup;
 use EasySwoole\EasySwoole\Logger;
-use wrxswoole\Core\Exception\ExceptionHandler;
 use wrxswoole\Core\Exception\Error\BaseException;
 use wrxswoole\Core\HttpController\CoreHttpController;
 use wrxswoole\Core\HttpController\NonHttpEnvController;
@@ -13,6 +12,7 @@ use wrxswoole\Core\Model\Traits\CoroutineSafeSingleTon;
 use wrxswoole\Core\Trace\Tracker;
 use wrxswoole\Core\Trace\Traits\TraceTrait;
 use wrxswoole\Core\Credential\Token;
+use wrxswoole\Core\Exception\BaseExceptionHandler;
 
 /**
  *
@@ -77,8 +77,8 @@ class CoreCoroutineThread
             if (CoreCoroutineThread::hasInstance()) {
                 NonHttpEnvController::getInstance()->onException($throwable);
             } else {
-                $response = (new ExceptionHandler($throwable))->getResponse();
-                Logger::getInstance()->error($response, "NON_HTTP_ENV_EXCEPTION");
+                $response = (new BaseExceptionHandler($throwable))->getResponse();
+                Logger::getInstance()->error(print_r($response, true), "NON_HTTP_ENV_EXCEPTION");
                 throw new BaseException($response, App::DEFAULT_ERROR_MSG);
             }
         }
