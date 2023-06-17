@@ -125,6 +125,7 @@ class ClassLoader extends BaseClassLoader
         $func = "composerRequire" . $this->hash;
 
         foreach ($includeFiles as $fileIdentifier => $file) {
+            if(function_exists($func))
             $func($fileIdentifier, $file);
         }
     }
